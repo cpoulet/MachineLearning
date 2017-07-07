@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,12 +16,14 @@ class KMeans:
         """return the closest cluster"""
         return min(range(self._k), key=lambda x:np.sum((vector - self.means[x]) ** 2))
     
-    def train(self, vectors):
+    def train(self, vectors, show = False):
         self.means = np.array(random.sample(vectors, self._k))
         loc = None
         while True:
             new_loc = list(map(self._classify, np.array(vectors))) # allocation of vector
             if new_loc == loc:  # all vectors were already allocated
+                if show:
+                    self._show(vectors)
                 return
             loc = new_loc[:]
             for i in range(self._k): # saving the new cluster means
@@ -28,8 +31,8 @@ class KMeans:
                 if p:
                     self.means[i] = np.array(p).mean(axis=0)
     
-    def show(self, inputs):
-        px, py = zip(*inputs)
+    def _show(self, vectors):
+        px, py = zip(*vectors)
         kx, ky = zip(*self.means)
         plt.scatter(px, py)
         axes = plt.gca()
@@ -39,10 +42,13 @@ class KMeans:
         plt.show()
 
 def main():
-    KM = KMeans(3)
+    k = 3
+    if len(sys.argv) == 2:
+        k = int(sys.argv[1])
+    KM = KMeans(k)
     inputs = [[-14, -5], [13, 13], [20, 23], [-19, -11], [-9, -16], [21, 27], [-49, 15], [26, 13], [-46, 5], [-34, -1], [11, 15], [-49, 0], [-22, -16], [19, 28], [-12, -8], [-13, -19], [-41, 8], [-11, -6], [-25, -9], [-18, -3]]
-    KM.train(inputs)
-    KM.show(inputs)
+    KM.train(inputs, True)
+    print(*KM.means)
 
 if __name__ == "__main__":
     try:
